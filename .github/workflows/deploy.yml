@@ -3,7 +3,7 @@ name: Build and Deploy to Raspberry Pi
 on:
   push:
     branches:
-      - main # sau master, depinde de ramura ta principală
+      - main
 
 jobs:
   deploy:
@@ -16,21 +16,28 @@ jobs:
     - name: Set up Node.js
       uses: actions/setup-node@v3
       with:
-        node-version: '22.18.0' # Alege versiunea de Node.js potrivită proiectului tău
+        node-version: '20'
 
     - name: Install dependencies
       run: npm install
 
     - name: Build React app
       run: npm run build
+      env:
+        VITE_FIREBASE_API_KEY: ${{ secrets.VITE_FIREBASE_API_KEY }}
+        VITE_FIREBASE_AUTH_DOMAIN: ${{ secrets.VITE_FIREBASE_AUTH_DOMAIN }}
+        VITE_FIREBASE_PROJECT_ID: ${{ secrets.VITE_FIREBASE_PROJECT_ID }}
+        VITE_FIREBASE_STORAGE_BUCKET: ${{ secrets.VITE_FIREBASE_STORAGE_BUCKET }}
+        VITE_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.VITE_FIREBASE_MESSAGING_SENDER_ID }}
+        VITE_FIREBASE_APP_ID: ${{ secrets.VITE_FIREBASE_APP_ID }}
 
     - name: Deploy to Raspberry Pi
       uses: easingthemes/ssh-deploy@main
       with:
-        SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-        REMOTE_HOST: ${{ secrets.SSH_HOST }}
-        REMOTE_USER: ${{ secrets.SSH_USER }}
-        REMOTE_PORT: ${{ secrets.SSH_PORT }}
-        SOURCE: "build/" # Folderul sursă generat de npm run build
-        TARGET: ${{ secrets.DEPLOY_PATH }}
-        EXCLUDE: "/.git/, /node_modules/"
+        ssh_private_key: ${{ secrets.SSH_PRIVATE_KEY }}
+        remote_host: ${{ secrets.SSH_HOST }}
+        remote_user: ${{ secrets.SSH_USER }}
+        remote_port: ${{ secrets.SSH_PORT }}
+        source: "build/"
+        target: ${{ secrets.DEPLOY_PATH }}
+        exclude: "/.git/, /node_modules/"

@@ -1,0 +1,35 @@
+name: Build and Deploy to Raspberry Pi
+
+on:
+  push:
+    branches:
+      - main # sau master, depinde de ramura ta principală
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '22.18.0' # Alege versiunea de Node.js potrivită proiectului tău
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Build React app
+      run: npm run build
+
+    - name: Deploy to Raspberry Pi
+      uses: easingthemes/ssh-deploy@main
+      with:
+        SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        REMOTE_HOST: ${{ secrets.SSH_HOST }}
+        REMOTE_USER: ${{ secrets.SSH_USER }}
+        SOURCE: "build/" # Folderul sursă generat de npm run build
+        TARGET: ${{ secrets.DEPLOY_PATH }}
+        EXCLUDE: "/.git/, /node_modules/"

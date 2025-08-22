@@ -1,5 +1,5 @@
 import React from "react";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../context/AuthProvider";
 import { useNavigate } from "react-router";
 import { Button, Container, Stack, Typography } from "@mui/material";
 
@@ -18,7 +18,7 @@ const HomePage = () => {
   return (
     <Container>
       <Stack spacing={4} sx={{ mt: 5, alignItems: "center" }}>
-        <Typography variant="h2">Flat finder</Typography>
+        <Typography variant="h2">Flat Finder</Typography>
         {currentUser ? (
           <>
             <Typography variant="h5">

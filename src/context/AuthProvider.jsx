@@ -34,6 +34,7 @@ const AuthProvider = ({ children }) => {
   const value = {
     currentUser,
     logout,
+    auth,
   };
 
   if (loading) {

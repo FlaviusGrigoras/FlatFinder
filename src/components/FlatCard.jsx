@@ -12,37 +12,35 @@ import {
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 
-export default function FlatCard({
-  flat, // {id, title, area, price, thumbnailUrl}
-  isFavorite, // boolean
-  onToggle, // (id) => void
-  onOpen, // (id) => void
-}) {
+export default function FlatCard({ flat, isFavorite, onToggle, onOpen, children }) {
   return (
     <Card sx={{ borderRadius: 2, overflow: "hidden", position: "relative" }}>
-      {/* Overlay favorite button OUTSIDE CardActionArea to avoid button nesting */}
-      <Box sx={{ position: "absolute", top: 8, right: 8, zIndex: 1 }}>
-        <Tooltip title={isFavorite ? "Elimină din favorite" : "Adaugă la favorite"}>
-          <IconButton
-            size="small"
-            onClick={(e) => {
-              e.stopPropagation();
-              onToggle(flat.id);
-            }}
-            sx={{
-              bgcolor: "rgba(255,255,255,0.9)",
-              "&:hover": { bgcolor: "rgba(255,255,255,1)" },
-            }}
-            aria-label={isFavorite ? "Remove favorite" : "Add favorite"}
+      {onToggle && (
+        <Box sx={{ position: "absolute", top: 8, right: 8, zIndex: 1 }}>
+          <Tooltip
+            title={isFavorite ? "Elimină din favorite" : "Adaugă la favorite"}
           >
-            {isFavorite ? (
-              <FavoriteIcon color="error" fontSize="small" />
-            ) : (
-              <FavoriteBorderIcon fontSize="small" />
-            )}
-          </IconButton>
-        </Tooltip>
-      </Box>
+            <IconButton
+              size="small"
+              onClick={(e) => {
+                e.stopPropagation();
+                onToggle(flat.id);
+              }}
+              sx={{
+                bgcolor: "rgba(255,255,255,0.9)",
+                "&:hover": { bgcolor: "rgba(255,255,255,1)" },
+              }}
+              aria-label={isFavorite ? "Remove favorite" : "Add favorite"}
+            >
+              {isFavorite ? (
+                <FavoriteIcon color="error" fontSize="small" />
+              ) : (
+                <FavoriteBorderIcon fontSize="small" />
+              )}
+            </IconButton>
+          </Tooltip>
+        </Box>
+      )}
 
       <CardActionArea component="div" onClick={() => onOpen(flat.id)}>
         <CardMedia
@@ -77,6 +75,8 @@ export default function FlatCard({
           </Box>
         </CardContent>
       </CardActionArea>
+
+      {children}
     </Card>
   );
 }

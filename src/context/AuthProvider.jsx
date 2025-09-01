@@ -1,4 +1,3 @@
-// src/context/AuthProvider.jsx (varianta ta, patch-uită)
 import React, { useState, useEffect } from "react";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
@@ -30,10 +29,8 @@ const AuthProvider = ({ children }) => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       try {
         if (user) {
-          // opțional: asigură profilul la prima autentificare
           try { await ensureUserProfile(user); } catch (e) { console.warn("ensureUserProfile:", e); }
 
-          // citește profilul, dar nu bloca UI-ul dacă nu ai permisiuni încă
           let profileData = null;
           try {
             const userDocRef = doc(db, "users", user.uid);
@@ -42,8 +39,6 @@ const AuthProvider = ({ children }) => {
           } catch (e) {
             console.warn("Profile read failed:", e);
           }
-
-          // păstrează forma existentă: user + datele din profil „flattened”
           setCurrentUser(profileData ? { ...user, ...profileData } : user);
         } else {
           setCurrentUser(null);

@@ -16,8 +16,8 @@ import { useForm } from "../hooks/useForm";
 const loginSchema = yup.object().shape({
   email: yup
     .string()
-    .required("Campul email este obligatoriu")
-    .email("Please insert an valid email"),
+    .required("Email is required")
+    .email("Please enter a valid email"),
   password: yup
     .string()
     .min(6, "Password must contain at least 6 characters")
@@ -44,7 +44,6 @@ function LoginPage() {
 
       const auth = getAuth();
       await signInWithEmailAndPassword(auth, formData.email, formData.password);
-      console.log("Autentificare reusita");
       navigate("/");
     } catch (err) {
       if (err instanceof yup.ValidationError) {
@@ -55,10 +54,10 @@ function LoginPage() {
           err.code === "auth/wrong-password" ||
           err.code === "auth/invalid-credential"
         ) {
-          setError("Emailul sau parola incorecte");
+          setError("Incorrect email or password");
         } else {
-          setError("A aparut o eroare");
-          console.error("Eroare Firebase: ", err);
+          setError("Something went wrong");
+          console.error("Firebase error:", err);
         }
       }
     } finally {

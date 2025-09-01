@@ -107,13 +107,12 @@ export default function FlatDetailPage() {
               {flat.city ? ` • ${flat.city}` : ""}
             </Typography>
 
-            {/* placeholder info */}
             <Box sx={{ mt: 2 }}>
               <Typography variant="subtitle2" gutterBottom>
                 Descriere
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                Placeholder… Vei adăuga descriere, facilități, hartă etc.
+                TBD
               </Typography>
             </Box>
           </Paper>

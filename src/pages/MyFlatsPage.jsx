@@ -45,7 +45,7 @@ export default function MyFlatsPage() {
   const onOpen = (id) => navigate(`/flat/${id}`);
 
   const onRemove = async (id) => {
-    if (!window.confirm("Ești sigur că vrei să ștergi acest anunț?")) {
+    if (!window.confirm("Are you sure you want to delete this listing?")) {
       return;
     }
     try {
@@ -53,14 +53,18 @@ export default function MyFlatsPage() {
       setFlats((prevFlats) => prevFlats.filter((flat) => flat.id !== id));
     } catch (e) {
       console.error("Error deleting listing:", e);
-      setError("We couldn't delete the listing. Please try again.");
+      if (e?.code === "permission-denied") {
+        setError("You do not have permission to delete this listing.");
+      } else {
+        setError("We couldn't delete the listing. Please try again.");
+      }
     }
   };
 
   return (
     <Container sx={{ py: 3 }}>
       <Typography variant="h5" fontWeight={700} mb={2}>
-        Proprietățile Mele
+        My Listings
       </Typography>
 
       {error && (
@@ -96,7 +100,7 @@ export default function MyFlatsPage() {
                       color="error"
                       onClick={() => onRemove(flat.id)}
                     >
-                      Șterge anunț
+                      Delete listing
                     </Button>
                   </CardActions>
                 </FlatCard>
@@ -107,7 +111,7 @@ export default function MyFlatsPage() {
       {!loading && !error && flats.length === 0 && (
         <Box sx={{ textAlign: "center", color: "text.secondary", mt: 3 }}>
           <Typography variant="body1">
-            Nu ai publicat niciun anunț momentan.
+            You haven't published any listings yet.
           </Typography>
         </Box>
       )}

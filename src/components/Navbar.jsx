@@ -56,7 +56,7 @@ export default function Navbar() {
       open={isMenuOpen}
       onClose={handleMenuClose}
     >
-      <MenuItem onClick={() => handleNavigate("/my-flats")}>Anunțurile Mele</MenuItem>
+      <MenuItem onClick={() => handleNavigate("/my-flats")}>My Listings</MenuItem>
       <MenuItem onClick={handleLogout}>Logout</MenuItem>
     </Menu>
   );
@@ -90,7 +90,7 @@ export default function Navbar() {
 
             <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
               {user ? (
-                <Tooltip title="Profilul meu">
+                <Tooltip title="My profile">
                   <IconButton
                     size="large"
                     edge="end"

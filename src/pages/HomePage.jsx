@@ -45,7 +45,7 @@ export default function HomePage() {
   return (
     <Container sx={{ py: 3 }}>
       <Typography variant="h5" fontWeight={700} mb={2}>
-        Proprietăți disponibile
+        Available Properties
       </Typography>
 
       {error && (
@@ -82,7 +82,7 @@ export default function HomePage() {
       {!loading && !error && flats.length === 0 && (
         <Box sx={{ textAlign: "center", color: "text.secondary", mt: 3 }}>
           <Typography variant="body1">
-            Nu am găsit proprietăți disponibile momentan.
+            No available properties right now.
           </Typography>
         </Box>
       )}

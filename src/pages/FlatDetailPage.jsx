@@ -87,11 +87,9 @@ export default function FlatDetailPage() {
               }}
             >
               <Typography variant="h6" fontWeight={700}>
-                {flat.price} € / lună
+                {flat.price} € / month
               </Typography>
-              <Tooltip
-                title={fav ? "Elimină din favorite" : "Adaugă la favorite"}
-              >
+              <Tooltip title={fav ? "Remove from favorites" : "Add to favorites"}>
                 <IconButton onClick={onToggleFav} aria-label="favorite">
                   {fav ? (
                     <FavoriteIcon color="error" />
@@ -109,7 +107,7 @@ export default function FlatDetailPage() {
 
             <Box sx={{ mt: 2 }}>
               <Typography variant="subtitle2" gutterBottom>
-                Descriere
+                Description
               </Typography>
               <Typography variant="body2" color="text.secondary">
                 TBD

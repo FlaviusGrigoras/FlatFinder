@@ -28,7 +28,7 @@ const ForgotPassword = () => {
 
       try {
         await sendPasswordResetEmail(auth, values.email);
-        setMessage("Verifică adresa de email pentru instrucțiunile de resetare.");
+        setMessage("Check your inbox for password reset instructions.");
       } catch (err) {
         if (err.code === "auth/user-not-found") {
           setError("No account found with this email address.");
@@ -52,7 +52,7 @@ const ForgotPassword = () => {
           alignItems: "center",
         }}
       >
-        <Typography component="h1" variant="h5">Resetează Parola</Typography>
+        <Typography component="h1" variant="h5">Reset Password</Typography>
         <Box
           component="form"
           onSubmit={formik.handleSubmit}
@@ -64,7 +64,7 @@ const ForgotPassword = () => {
             required
             fullWidth
             id="email"
-            label="Adresă de Email"
+            label="Email Address"
             name="email"
             autoComplete="email"
             autoFocus
@@ -93,7 +93,7 @@ const ForgotPassword = () => {
             sx={{ mt: 3, mb: 2 }}
             disabled={loading || !formik.isValid}
           >
-            {loading ? "Se trimite..." : "Trimite Email de Resetare"}
+            {loading ? "Sending..." : "Send Reset Email"}
           </Button>
         </Box>
       </Box>

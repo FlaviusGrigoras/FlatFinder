@@ -66,7 +66,24 @@ export async function getFlatsByOwner(userId) {
     const snapshot = await getDocs(q);
     return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
   } catch (e) {
-    console.error("Error loading properties: ", e);
+    // If a composite index is missing, fall back to a simpler query and client-side sort
+    if (e?.code === "failed-precondition") {
+      console.warn(
+        "getFlatsByOwner requires a composite index (ownerId + createdAt). Using fallback query without orderBy.",
+        e?.message || e
+      );
+      const q = query(collection(db, "flats"), where("ownerId", "==", userId));
+      const snapshot = await getDocs(q);
+      const items = snapshot.docs.map((docSnap) => ({ id: docSnap.id, ...docSnap.data() }));
+      // Best-effort sort by createdAt if present
+      items.sort((a, b) => {
+        const am = a?.createdAt?.toMillis ? a.createdAt.toMillis() : a?.createdAt?.seconds ? a.createdAt.seconds * 1000 : 0;
+        const bm = b?.createdAt?.toMillis ? b.createdAt.toMillis() : b?.createdAt?.seconds ? b.createdAt.seconds * 1000 : 0;
+        return bm - am;
+      });
+      return items;
+    }
+    console.error("Error loading properties:", e);
     throw e;
   }
 }

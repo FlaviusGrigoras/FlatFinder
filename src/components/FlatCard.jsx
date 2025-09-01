@@ -17,9 +17,7 @@ export default function FlatCard({ flat, isFavorite, onToggle, onOpen, children 
     <Card sx={{ borderRadius: 2, overflow: "hidden", position: "relative" }}>
       {onToggle && (
         <Box sx={{ position: "absolute", top: 8, right: 8, zIndex: 1 }}>
-          <Tooltip
-            title={isFavorite ? "Elimină din favorite" : "Adaugă la favorite"}
-          >
+          <Tooltip title={isFavorite ? "Remove from favorites" : "Add to favorites"}>
             <IconButton
               size="small"
               onClick={(e) => {
@@ -70,7 +68,7 @@ export default function FlatCard({ flat, isFavorite, onToggle, onOpen, children 
             </Typography>
             <Typography variant="body2">•</Typography>
             <Typography variant="body2" fontWeight={600}>
-              {flat.price} € / luna
+              {flat.price} € / month
             </Typography>
           </Box>
         </CardContent>

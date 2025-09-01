@@ -14,15 +14,7 @@ import {
   TextField,
 } from "@mui/material";
 import { useState } from "react";
-import {
-  getFirestore, // Importuri necesare pentru Firestore
-  collection,
-  query,
-  where,
-  getDocs,
-  setDoc,
-  doc,
-} from "firebase/firestore";
+import { getFirestore, collection, query, where, getDocs, setDoc, doc } from "firebase/firestore";
 import { Link, useNavigate } from "react-router-dom";
 
 const loginSchema = yup.object().shape({

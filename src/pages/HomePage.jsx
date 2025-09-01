@@ -1,44 +1,98 @@
-import React from "react";
+import * as React from "react";
+import { useEffect, useState } from "react";
+import { Container, Grid, Typography, Skeleton, Box, Alert } from "@mui/material";
+import { useNavigate } from "react-router-dom";
+import { getFlats } from "../services/flats";
+import FlatCard from "../components/FlatCard";
+import { useFavorites } from "../hooks/useFavorites";
 import { useAuth } from "../context/AuthContext";
-import { useNavigate } from "react-router";
-import { Button, Container, Stack, Typography } from "@mui/material";
 
-const HomePage = () => {
-  const { currentUser, logout } = useAuth();
+export default function HomePage() {
+  const [flats, setFlats] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const { favorites, toggleFavorite } = useFavorites(user);
 
-  const handleLogout = async () => {
-    try {
-      await logout();
+  useEffect(() => {
+    (async () => {
+      setError("");
+      try {
+        const data = await getFlats();
+        setFlats(data);
+      } catch (e) {
+        console.error("Eroare la încărcarea proprietăților:", e);
+        // Mesaj prietenos + hint pentru indexuri Firestore
+        setError(
+          "Nu am putut încărca proprietățile. Verifică conexiunea sau configurația Firestore (indexuri/permisiuni)."
+        );
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, []);
+
+  const onOpen = (id) => navigate(`/flat/${id}`);
+
+  const onToggle = (id) => {
+    if (!user) {
       navigate("/login");
-    } catch (error) {
-      console.error("Failed to logout", error);
+      return;
     }
+    toggleFavorite(id);
   };
+
   return (
-    <Container>
-      <Stack spacing={4} sx={{ mt: 5, alignItems: "center" }}>
-        <Typography variant="h2">Flat Finder</Typography>
-        {currentUser ? (
-          <>
-            <Typography variant="h5">
-              Hello, {currentUser.name || currentUser.email}!
-            </Typography>
-            <Button variant="contained" color="error" onClick={handleLogout}>
-              Log out
-            </Button>
-          </>
-        ) : (
-          <>
-            <Typography variant="h5">Please login</Typography>
-            <Button variant="contained" onClick={() => navigate("/login")}>
-              Go to Login
-            </Button>
-          </>
-        )}
-      </Stack>
+    <Container sx={{ py: 3 }}>
+      <Typography variant="h5" fontWeight={700} mb={2}>
+        Proprietăți disponibile
+      </Typography>
+
+      {error && (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {error}
+        </Alert>
+      )}
+
+      <Grid container spacing={2}>
+        {loading
+          ? Array.from({ length: 6 }).map((_, i) => (
+              <Grid size={{ xs: 12, sm: 6, md: 4 }} key={i}>
+                <Skeleton
+                  variant="rectangular"
+                  height={220}
+                  sx={{ borderRadius: 2, mb: 1 }}
+                />
+                <Skeleton width="80%" />
+                <Skeleton width="60%" />
+              </Grid>
+            ))
+          : flats.map((flat) => (
+              <Grid size={{ xs: 12, sm: 6, md: 4 }} key={flat.id}>
+                <FlatCard
+                  flat={flat}
+                  isFavorite={favorites.has(flat.id)}
+                  onToggle={onToggle}
+                  onOpen={onOpen}
+                />
+              </Grid>
+            ))}
+      </Grid>
+
+      {!loading && !error && flats.length === 0 && (
+        <Box sx={{ textAlign: "center", color: "text.secondary", mt: 3 }}>
+          <Typography variant="body1">
+            Nu am găsit proprietăți disponibile momentan.
+          </Typography>
+        </Box>
+      )}
+
+      {/* dacă adaugi paginare mai târziu */}
+      <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
+        {/* exemplu buton load more */}
+        {/* <Button variant="outlined" onClick={loadMore} disabled={!hasMore || loading}>Load more</Button> */}
+      </Box>
     </Container>
   );
-};
-
-export default HomePage;
+}

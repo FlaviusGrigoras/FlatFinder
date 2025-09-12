@@ -8,8 +8,8 @@ import { Box, Button, TextField, Typography, Container, Alert } from "@mui/mater
 const validationSchema = yup.object({
   email: yup
     .string()
-    .email("Adresa de email nu este validă")
-    .required("Adresa de email este obligatorie"),
+    .email("Email address is not valid")
+    .required("Email address is required"),
 });
 
 const ForgotPassword = () => {
@@ -28,14 +28,14 @@ const ForgotPassword = () => {
 
       try {
         await sendPasswordResetEmail(auth, values.email);
-        setMessage("Verifică adresa de email pentru instrucțiunile de resetare.");
+        setMessage("Check your inbox for password reset instructions.");
       } catch (err) {
         if (err.code === "auth/user-not-found") {
-          setError("Nu există un cont asociat cu această adresă de email.");
+          setError("No account found with this email address.");
         } else {
-          setError("A apărut o eroare. Te rugăm să încerci din nou.");
+          setError("Something went wrong. Please try again.");
         }
-        console.error("Eroare Firebase: ", err.message);
+        console.error("Firebase error:", err.message);
       } finally {
         setLoading(false);
       }
@@ -52,9 +52,7 @@ const ForgotPassword = () => {
           alignItems: "center",
         }}
       >
-        <Typography component="h1" variant="h5">
-          Resetează Parola
-        </Typography>
+        <Typography component="h1" variant="h5">Reset Password</Typography>
         <Box
           component="form"
           onSubmit={formik.handleSubmit}
@@ -66,7 +64,7 @@ const ForgotPassword = () => {
             required
             fullWidth
             id="email"
-            label="Adresă de Email"
+            label="Email Address"
             name="email"
             autoComplete="email"
             autoFocus
@@ -95,7 +93,7 @@ const ForgotPassword = () => {
             sx={{ mt: 3, mb: 2 }}
             disabled={loading || !formik.isValid}
           >
-            {loading ? "Se trimite..." : "Trimite Email de Resetare"}
+            {loading ? "Sending..." : "Send Reset Email"}
           </Button>
         </Box>
       </Box>

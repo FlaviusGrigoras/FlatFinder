@@ -7,17 +7,23 @@ import { AuthContext } from "../context/AuthContext";
 
 async function ensureUserProfile(user) {
   const userDocRef = doc(db, "users", user.uid);
-  const snap = await getDoc(userDocRef);
-  if (!snap.exists()) {
-    await setDoc(userDocRef, {
-      uid: user.uid,
-      email: user.email ?? null,
-      displayName: user.displayName ?? "",
-      photoURL: user.photoURL ?? "",
-      isAdmin: false,
-      createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp(),
-    });
+  // Attempt to create/update without requiring a prior read (rules-friendly)
+  try {
+    await setDoc(
+      userDocRef,
+      {
+        uid: user.uid,
+        email: user.email ?? null,
+        displayName: user.displayName ?? "",
+        photoURL: user.photoURL ?? "",
+        isAdmin: false,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      },
+      { merge: true }
+    );
+  } catch (e) {
+    console.warn("ensureUserProfile setDoc:", e);
   }
 }
 

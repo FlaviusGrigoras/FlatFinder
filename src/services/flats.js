@@ -25,13 +25,34 @@ export async function getFlats() {
     const snapshot = await getDocs(q);
     return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
   } catch (e) {
-    console.warn(
-      "getFlats primary query failed, applying fallback:",
-      e?.message || e
+    if (import.meta.env.DEV) {
+      console.warn(
+        "getFlats primary query failed, applying fallback:",
+        e?.message || e
+      );
+    }
+    const fallback = query(
+      collection(db, "flats"),
+      where("isActive", "==", true),
+      limit(12)
     );
-    const fallback = query(collection(db, "flats"), limit(12));
     const snapshot = await getDocs(fallback);
-    return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+    const items = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+    // Client-side sort by createdAt desc (while index builds)
+    items.sort((a, b) => {
+      const am = a?.createdAt?.toMillis
+        ? a.createdAt.toMillis()
+        : a?.createdAt?.seconds
+        ? a.createdAt.seconds * 1000
+        : 0;
+      const bm = b?.createdAt?.toMillis
+        ? b.createdAt.toMillis()
+        : b?.createdAt?.seconds
+        ? b.createdAt.seconds * 1000
+        : 0;
+      return bm - am;
+    });
+    return items;
   }
 }
 
@@ -42,11 +63,24 @@ export async function getFlatById(id) {
   return { id: snapshot.id, ...snapshot.data() };
 }
 
-export async function addFlat(flatData, userId) {
+export async function addFlat(flatData, userOrId) {
   try {
+    const ownerId = typeof userOrId === "string" ? userOrId : userOrId?.uid;
+    const ownerDisplayName =
+      typeof userOrId === "object" && userOrId
+        ? userOrId.displayName || userOrId.name || null
+        : null;
+    const ownerEmail =
+      typeof userOrId === "object" && userOrId ? userOrId.email || null : null;
+    const ownerPhotoURL =
+      typeof userOrId === "object" && userOrId ? userOrId.photoURL || null : null;
+
     await addDoc(collection(db, "flats"), {
       ...flatData,
-      ownerId: userId,
+      ownerId,
+      ownerDisplayName,
+      ownerEmail,
+      ownerPhotoURL,
       isActive: true,
       createdAt: serverTimestamp(),
     });
@@ -66,16 +100,16 @@ export async function getFlatsByOwner(userId) {
     const snapshot = await getDocs(q);
     return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
   } catch (e) {
-    // If a composite index is missing, fall back to a simpler query and client-side sort
     if (e?.code === "failed-precondition") {
-      console.warn(
-        "getFlatsByOwner requires a composite index (ownerId + createdAt). Using fallback query without orderBy.",
-        e?.message || e
-      );
+      if (import.meta.env.DEV) {
+        console.warn(
+          "getFlatsByOwner requires a composite index (ownerId + createdAt). Using fallback query without orderBy.",
+          e?.message || e
+        );
+      }
       const q = query(collection(db, "flats"), where("ownerId", "==", userId));
       const snapshot = await getDocs(q);
       const items = snapshot.docs.map((docSnap) => ({ id: docSnap.id, ...docSnap.data() }));
-      // Best-effort sort by createdAt if present
       items.sort((a, b) => {
         const am = a?.createdAt?.toMillis ? a.createdAt.toMillis() : a?.createdAt?.seconds ? a.createdAt.seconds * 1000 : 0;
         const bm = b?.createdAt?.toMillis ? b.createdAt.toMillis() : b?.createdAt?.seconds ? b.createdAt.seconds * 1000 : 0;
@@ -83,7 +117,7 @@ export async function getFlatsByOwner(userId) {
       });
       return items;
     }
-    console.error("Error loading properties:", e);
+    if (import.meta.env.DEV) console.error("Error loading properties:", e);
     throw e;
   }
 }

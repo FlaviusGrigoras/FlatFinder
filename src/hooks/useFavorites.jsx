@@ -19,10 +19,17 @@ export function useFavorites(user) {
     }
 
     const favRef = collection(db, "users", user.uid, "favorites");
-    const unsub = onSnapshot(favRef, (snapshot) => {
-      const favSet = new Set(snapshot.docs.map((doc) => doc.id));
-      setFavorites(favSet);
-    });
+    const unsub = onSnapshot(
+      favRef,
+      (snapshot) => {
+        const favSet = new Set(snapshot.docs.map((doc) => doc.id));
+        setFavorites(favSet);
+      },
+      (err) => {
+        if (import.meta.env.DEV) console.warn("favorites onSnapshot error:", err);
+        setFavorites(new Set());
+      }
+    );
 
     return () => unsub();
   }, [user]);
